@@ -15,3 +15,15 @@ jobs:
           echo "Runner is alive"
           pwd
           ls -la
+
+      - name: Download build assets from release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download build-source-v1 \
+            --repo ${{ github.repository }} \
+            --pattern "*.zip" \
+            --dir downloads
+
+      - name: List downloaded files
+        run: ls -la downloads
