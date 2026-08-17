@@ -1,0 +1,71 @@
+name: Build Launcher AppImage
+
+on:
+  workflow_dispatch:
+
+jobs:
+  appimage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download build assets from release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download build-source-v1 \
+            --repo ${{ github.repository }} \
+            --pattern "*.zip" \
+            --dir downloads
+
+      - name: Unzip Launcher Linux build
+        run: |
+          mkdir -p extracted
+          unzip -q "downloads/NoblesLauncher-Linux.zip" -d extracted
+          ls -la extracted
+
+      - name: Download linuxdeploy
+        run: |
+          wget -q https://github.com/linuxdeploy/linuxdeploy/releases/latest/download/linuxdeploy-x86_64.AppImage
+          chmod +x linuxdeploy-x86_64.AppImage
+
+      - name: Build AppDir structure
+        run: |
+          mkdir -p AppDir/usr/bin
+          cp "extracted/Nobles Launcher.x86_64" AppDir/usr/bin/NoblesLauncher
+          chmod +x AppDir/usr/bin/NoblesLauncher
+          cp -R "extracted/Nobles Launcher_Data" AppDir/usr/bin/NoblesLauncher_Data
+          cp "extracted/UnityPlayer.so" AppDir/usr/bin/ || echo "No separate UnityPlayer.so found, continuing"
+          ls -la AppDir/usr/bin
+
+      - name: Resize and place icon
+        run: |
+          convert "Builds/Icons/Regal Icon.png" -resize 256x256 AppDir/nobleslauncher.png
+          ls -la AppDir
+
+      - name: Create desktop entry
+        run: |
+          cat > AppDir/nobleslauncher.desktop << 'EOF'
+          [Desktop Entry]
+          Type=Application
+          Name=Nobles Launcher
+          Exec=NoblesLauncher
+          Icon=nobleslauncher
+          Categories=Game;
+          EOF
+          cat AppDir/nobleslauncher.desktop
+
+      - name: Build AppImage
+        run: |
+          ./linuxdeploy-x86_64.AppImage \
+            --appdir AppDir \
+            --desktop-file AppDir/nobleslauncher.desktop \
+            --icon-file AppDir/nobleslauncher.png \
+            --output appimage
+
+      - name: Upload AppImage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Nobles-Launcher-AppImage
+          path: "*.AppImage"
