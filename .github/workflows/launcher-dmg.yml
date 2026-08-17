@@ -27,3 +27,12 @@ jobs:
 
       - name: List downloaded files
         run: ls -la downloads
+
+      - name: Unzip Launcher macOS build
+        run: |
+          mkdir -p extracted
+          unzip -q "downloads/NoblesLauncher-macOS.zip" -d extracted
+          ls -la extracted
+
+      - name: Install create-dmg
+        run: brew install create-dmg
