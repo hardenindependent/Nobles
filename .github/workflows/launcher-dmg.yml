@@ -1,1 +1,17 @@
-# placeholder
+name: Build Launcher DMG
+
+on:
+  workflow_dispatch:
+
+jobs:
+  dmg:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Sanity check
+        run: |
+          echo "Runner is alive"
+          pwd
+          ls -la
