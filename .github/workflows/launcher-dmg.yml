@@ -36,3 +36,21 @@ jobs:
 
       - name: Install create-dmg
         run: brew install create-dmg
+
+      - name: Create DMG
+        run: |
+          mkdir -p dist
+          create-dmg \
+            --volname "Nobles Launcher" \
+            --window-pos 200 120 \
+            --window-size 800 400 \
+            --icon-size 100 \
+            --app-drop-link 600 185 \
+            "dist/Nobles Launcher.dmg" \
+            "extracted/Nobles Launcher.app"
+
+      - name: Upload DMG artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Nobles-Launcher-dmg
+          path: "dist/Nobles Launcher.dmg"
