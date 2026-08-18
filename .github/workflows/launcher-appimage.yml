@@ -70,7 +70,8 @@ jobs:
       - name: Zip AppImage
         run: |
           mkdir -p dist-zip
-          zip -j "dist-zip/NoblesLauncher-appimage.zip" *.AppImage
+          ls -la *.AppImage
+          zip -j "dist-zip/NoblesLauncher-appimage.zip" Nobles_Launcher-x86_64.AppImage
 
       - name: Upload AppImage artifact
         uses: actions/upload-artifact@v4
