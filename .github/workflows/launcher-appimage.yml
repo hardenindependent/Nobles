@@ -39,8 +39,8 @@ jobs:
           cp "extracted/UnityPlayer.so" AppDir/usr/bin/ || echo "No separate UnityPlayer.so found, continuing"
           ls -la AppDir/usr/bin
 
-      - name: Install ImageMagick
-        run: sudo apt-get update && sudo apt-get install -y imagemagick
+      - name: Install ImageMagick and zip
+        run: sudo apt-get update && sudo apt-get install -y imagemagick zip
 
       - name: Resize and place icon
         run: |
@@ -67,8 +67,13 @@ jobs:
             --icon-file AppDir/nobleslauncher.png \
             --output appimage
 
+      - name: Zip AppImage
+        run: |
+          mkdir -p dist-zip
+          zip -j "dist-zip/NoblesLauncher-appimage.zip" *.AppImage
+
       - name: Upload AppImage artifact
         uses: actions/upload-artifact@v4
         with:
           name: Nobles-Launcher-AppImage
-          path: "*.AppImage"
+          path: "dist-zip/NoblesLauncher-appimage.zip"
