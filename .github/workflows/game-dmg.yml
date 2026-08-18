@@ -40,8 +40,13 @@ jobs:
             "dist/Nobles.dmg" \
             "extracted/Nobles.app"
 
+      - name: Zip DMG
+        run: |
+          mkdir -p dist-zip
+          zip -j "dist-zip/Nobles-dmg.zip" "dist/Nobles.dmg"
+
       - name: Upload DMG artifact
         uses: actions/upload-artifact@v4
         with:
           name: Nobles-dmg
-          path: "dist/Nobles.dmg"
+          path: "dist-zip/Nobles-dmg.zip"
