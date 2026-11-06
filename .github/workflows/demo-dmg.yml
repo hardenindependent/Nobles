@@ -1,0 +1,55 @@
+name: Build Demo DMG
+
+on:
+  workflow_dispatch:
+
+jobs:
+  dmg:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download build assets from release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download build-source-v1 \
+            --repo ${{ github.repository }} \
+            --pattern "NoblesDemo-macOS.zip" \
+            --dir downloads
+
+      - name: Unzip Demo macOS build
+        run: |
+          mkdir -p extracted
+          unzip -q "downloads/NoblesDemo-macOS.zip" -d extracted
+          ls -la extracted
+
+      - name: Fix executable permissions
+        run: chmod -R +x "extracted/Nobles Demo.app/Contents/MacOS"
+
+      - name: Install create-dmg
+        run: brew install create-dmg
+
+      - name: Create DMG
+        run: |
+          mkdir -p dist
+          create-dmg \
+            --volname "Nobles Demo" \
+            --window-pos 200 120 \
+            --window-size 800 400 \
+            --icon-size 100 \
+            --app-drop-link 600 185 \
+            "dist/Nobles Demo.dmg" \
+            "extracted/Nobles Demo.app"
+
+      - name: Zip DMG
+        run: |
+          mkdir -p dist-zip
+          zip -j "dist-zip/NoblesDemo-dmg.zip" "dist/Nobles Demo.dmg"
+
+      - name: Upload DMG artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Nobles-Demo-dmg
+          path: "dist-zip/NoblesDemo-dmg.zip"
